@@ -1,37 +1,40 @@
-## Welcome to GitHub Pages
+###个人信息
+####姓名： 李小培
+####学校学历： 东北大学计算机科学与技术(软件工程)工学硕士
+####邮箱： xiaopei.li.soar@gmail.com
 
-You can use the [editor on GitHub](https://github.com/lixiaopei/resume.github.io/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+###自我评价
+####技术全面，精通C++程序开发，熟练iOS上应用和游戏开发，了解Spring等网站开发技术
+####有从零构建大型项目的能力和经验
+####网络和数据系统架构调整和性能优化经验
+####熟悉开发过程中日程制定，进度追踪等流程。同时有客户现场部署和调试经验
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+###个人资历
+####系统架构师-软考高级认证
+####PMP-项目管理专家认证
+####UML-OCPU中级认证
+####英语六级-听说
+####日语二级
+####证券从业资格
 
-### Markdown
+###个人荣誉
+####2019年大连市创业孵化平台优秀创业人才
+#####https://wenku.baidu.com/view/3ad77209a800b52acfc789eb172ded630b1c98b6.html
+####2019联邦快递中小企业大赛全国十强
+#####https://www.sohu.com/a/317046248_564549
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+###工作经历
+####2020/07-至今  思佰益必智信息技术(大连)有限公司 SE
+####2017/08-2020/07 大连华易飞派科技有限公司 CTO
+####2016/08-2017/07 大连红豆互娱技术开发有限公司 SE
+####2011/04-2016/07 大连慧搜网络技术有限公司 SE
+####2008/04-2011/03 日冲信息(大连)有限公司 PG
 
-```markdown
-Syntax highlighted code block
+###项目经验
+####1. 期权,期货交易系统开发：  微服务，Rust语言，分布式部署，系统性能优化
+####2. 基于文件过滤的影子主机系统研发： 系统迁移，数据CDP机制，业务系统持续监控，C++， 文件过滤驱动， 技术负责人
+####3. 基于iOS的App,游戏开发： Comico， Lovelive，Puyopuyo, 母子手账等
+####4. 扫描仪驱动和上层解决方案开发： C++, MFP， 网络发现，程序发布等
+####5. 四季旅行网开发： 签证，WIFI盒子，门票预订等
 
-# Header 1
-## Header 2
-### Header 3
 
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/lixiaopei/resume.github.io/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
