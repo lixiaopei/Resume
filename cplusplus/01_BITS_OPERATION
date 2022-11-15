@@ -1,0 +1,58 @@
+设置数字N的第i-j位的内容等于M。
+0<=i,j<len(N)-1
+
+//generate width of 1 where width is j-i+1
+DWORD Gen1Width(WORD i, WORD j){
+  return (1<<(j-i+1))-1;
+}
+
+//generate width of 1 where with is j-i+1 and offset is i
+DWORD Gen1Bands(WORD i, WORD j){
+    return Gen1Width(i,j)<<i;
+}
+
+//generate width of 0 where with is j-i+1 and offset is i
+DWORD Gen0Bands(WORD i, WORD j){
+    return ~Gen1Bands(i,j);
+}
+//set M into N from offset i to j
+DWORD UpdateBits(DWORD N, WORD i, WORD j, DWORD M){
+	return ( N & Gen0Bands(i,j) ) | (m<<i);
+}
+//Get value form N, offset from i to j
+DWORD GetBits(DWORD N, WORD i, WORD j){
+	if(i){
+		N = N>>i;
+	}
+	return N & Gen1Width(i,j);
+}
+//Is value i-j of N equals to M
+BOOL IsBits(DWORD N, WORD i, WORD j, DWORD M){
+	return M == GetBits(N,i,j);
+}
+//Reverse bits from i-j in N
+DWORD ReverseBits(DWORD N, WORD i, WORD j){
+	return N ^ Gen1Bands(i,j);
+}
+
+DWORD Mod(DWORD N, DWORD s){
+  switch(s){
+    case 0:
+    case 1:
+      return 0;
+     break;
+    case 1<<1:
+      return N & ((1<<1)-1);
+    break;
+    case 1<<2:
+      return N & ((1<<2)-1);
+    break;
+    ...
+    case 1<<31:
+      return  N & ((1<<2)-1);
+    break;
+    default:
+      return N%s;
+    break;
+  }
+}
