@@ -1,0 +1,209 @@
+Page Heap机制
+ 
+
+提示说堆内存被破坏，有时候这样的错误在比较小的程序里面也许不会对整个程序造成破坏，依然能够继续运行，但是千万不要放过，像这种破坏堆内存的隐藏BUG，说不准哪天就会造成整个软件的crash。另外我要提醒的是，release版本也许什么提示都没有，直接放过了，这是因为在debug下，操作系统用DebugWin32Heap来代替正常的heap分配内存空间。在这个堆上的任何操作，debug的堆管理器会检查堆的数据完整性，如果它发现了一个错误，就会报告一个消息上来。
+
+我们可以对这种情况作一个猜测，既然是delete的时候出了问题，那就是这个程序很可能去访问了“非法”的内存，这里的非法内存是指不是由你的程序分配的内存块，但是被你的程序在某种情况下访问到了，当然这是堆上的情况，所以在release下可能一时不会出问题，如果是栈上，程序也许早就是crase或者出现莫名其妙的错误了。
+
+现在问题比较集中了，但是整个程序在堆上分配了那么多对象，到底哪次分配出了问题？这还是很难定位到错误，用BoundsChecker完整跑一遍是一个好办法，但是比较麻烦，其实微软已经给我们想到了办法，试想如果在每次分配的内存块边界做限制，设置为虚拟内存，也就是NO_ACCESS（不可访问），那程序试图读写这个地方的时候，就会出错，程序会马上断下来，也就是所谓的PageHeap机制。
+
+要让我们的程序启用Full Page Heap机制，需在注册表中
+HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows NT/CurrentVersion/Image File Execution Options/appName.exe下增加如下设置，
+
+属性名：GlobalFlag，字符串类型，值：x02200000
+
+属性名：PageHeapFlags，字符串类型，值：0x3
+
+属性名：VerifierFlags，DWORD类型，值：1
+
+另外替换appName.exe为你正在调试的真正的程序文件名，如果你安装了Debugging Tools for Windows，这一切会更加简单，在安装目录下有个gflags工具，直接用命令行运行 gflags –p /enable appName.exe /full 即可自动帮你添加上述注册表值，如果你没有该工具，你可以去http://www.microsoft.com/whdc/devtools/debugging/installx86.mspx下载。
+
+http://www.microsoft.com/whdc/devtools/debugging/installx86.mspx#b
+
+DLL也是可以用这个机制的，注册表的设置有点区别，如下：
+
+GlobalFlag，字符串类型，值是0x02000000
+
+PageHeapTargetDlls，字符串类型，值是调试的dll名称，不带路径
+
+VerifierFlags，DWORD类型，值是00000001
+
+PageHeapFlags，字符串类型，0x403
+
+ 
+
+或者使用命令行 gflags –p /enable appName.exe /full /dlls dllName.dll 这里要注意的是，注册表的子健值应该是dll依附的exe程序名。
+
+好，使用该机制后再次调试，果然断下来了，在一个对象里面的结构体里面出错了，这个结构体是该类的最后一个成员，该结构体的最后四个DWORD的值显示是无效的，把这个结构体放在前面后，这个类的最后四个DWORD大小的空间还是无效的，现在可以知道，分配内存的时候，根本没有给该对象分配足够的内存，而delete的时候却按该对象的大小来释放，自然就被d堆管理器捕获了这个错误，为什么会少分配4个dword的大小？后来发现是滥用内联函数造成的，构造和析构函数使用了内联，其实内联这个东东，编译器完全可以无视，也就是说不给你内联，但是也许又给你内联，怎么理解？也就是说内联不内联完全由编译器决定，而程序员无法控制，这在win32里面有个词叫什么 - 不可预测，呵呵，既然是强大的不可预测，就不要为了那么一点点效率来使用内联了，后来把构造析构函数搬到CPP文件里面之后，分配马上就正常了。
+
+ 
+
+重现上面的bug其实很容易，如下：
+
+// 演示一个BUG
+
+char* pHeap = new char[2];
+
+::lstrcpy(pHeap, "tonglei");
+
+delete pHeap;
+--------------------- 
+ 
+
+ 
+ 
+PageHeap / Gflags 使用，溢出容易用到
+ 
+
+堆调试工具——pageheap的使用和原理分析
+今天调试一个bug，用pageheap解决，在此记录一下。
+
+bug症状如下：
+1：不确定性崩溃，用vs调试启动每次崩溃地点都在crt分配或者释放堆的位置
+2：崩溃时vs看到的调用栈可能不同
+3：output输出HEAP: Free Heap block 388c58 modified at 388c88 after it was freed
+
+
+问题分析：
+根据vs的输出，确定问题是在一块堆上分配的内存在释放后被改写了。由于CRT只能在下次做堆操作检查时才会暴露出问题，所以程序崩溃的调用栈是不确定的。
+折腾了2个小时后，启用pageheap缩小了程序出错到崩溃之间的距离，解决了问题。过程如下：
+1:启动pageheap
+pageheap /enable mybug.exe 0x01
+2:调试启动mybug.exe
+现在程序崩溃的调用栈每次都相同，并且都在相同的线程中，根据调用栈信息很轻松的锁定了bug。
+
+ 
+
+由于上面的例子过于复杂，下面写了一些小程序分析了pageheap的原理
+
+ 
+
+char* buffer = new char[19];        // 1
+buffer[19] = 0;                     // 2
+delete [] buffer;                   // 3
+ 
+
+这是一个很简单的堆内存越界的例子，在未启动pageheap的情况下，我们来看看buffer的内存情况：
+buffer = 0x00388C80
+第一行执行后,buffer的内存
+
+ 
+
+0x00388C80  cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd  ................
+0x00388C90  cd cd cd fd fd fd fd ab ab ab ab ab ab ab ab fe  ................
+ 
+
+
+简单说明一下，调试模式下堆上未初始化的内存为cd，并且在内存结束处有4个fd的边界，用于debug模式下crt做内存检查，执行第2行之后，buffer的内存为
+
+
+0x00388C80  cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd  ................
+0x00388C90  cd cd cd 00 fd fd fd ab ab ab ab ab ab ab ab fe  ................
+
+
+可以看到4个fd的内存边界中第一个fd被破坏了。但这个时候程序并没有崩溃，继续执行第3行，程序崩溃，提示堆错误，可以看到，如果第2行和第3行之间有很长的代码逻辑，那么也只能在第3行执行之后程序才会崩溃。这给调式程序带来了极大的不便。
+如果第2行改为：buffer[24] = 0 程序同样不会崩溃
+如果启用了pageheap，再来看看在debug模式下buffer的内存分配情况：
+第一行分配内存后,buffer的内存情况：
+
+
+0x01675FE8  cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd  ................
+0x01675FF8  cd cd cd fd fd fd fd d0 ?? ?? ?? ?? ?? ?? ?? ??  ................
+
+可以看到，和上面一样，在内存结束加上了4个fd的边界，d0是用于填补4字节对齐，注意buffer后面的地址(第一个??)为0x01675FF8+8 = 0x01676000,这是一个4k对齐的PAGE_NOACCESS页面,这个时候我们执行第2行代码
+buffer[19] = 0; 同样不会崩溃，即使是修改buffer[19-23]的值(4个fd边界和1个对齐d0)，和未启动pageheap一样，程序都只会在执行第3行的时候崩溃。如果修改buffer[24]则程序会崩溃。
+
+通过这个例子，可以得出一个结论：启用pageheap后，堆内存分配在页面的末尾，后面紧跟了一个4k的PAGE_NOACCESS属性的页面,这种情况下，启用pageheap的好处是能在一定程度上检查内存越界。
+
+再来看一个例子
+
+ 
+
+ char* buffer = new char[20];  // 1
+ delete [] buffer;             // 2
+ buffer[1] = 1;                // 3
+ 
+
+这个例子演示了操作delete释放后的内存，在未启动pageheap的情况下，程序不会崩溃，原因同上一个例子，启用pageheap后，buffer内存为：
+第一行执行后:
+
+
+0x01675FE8  cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd  ................
+0x01675FF8  cd cd cd cd fd fd fd fd ?? ?? ?? ?? ?? ?? ?? ??  ................
+
+ 
+
+
+第2行执行后：
+
+
+0x01675FE8  ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ??  ................
+0x01675FF8  ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ??  ................
+
+
+可以看到，启用pageheap后delete内存，分配该内存的整个页面都被设置为PAGE_NOACCESS属性，这样操作delete后的任何内存程序马上就会崩溃。
+
+结论2：启用pageheap很容易检查操作delete后的内存的错误（包括2次delete）
+
+ 
+
+总结：
+1：启用pageheap后，系统的堆管理器会把内存分配到4k页面的末尾（注意需要4字节对齐，debug模式下还存在边界检查的4字节fd）
+2：紧随着的下一个页面被设置为PAGE_NOACCESS属性
+3：启用pageheap后，释放内存把整个页面设置为PAGE_NOACCESS属性
+4：内存越界和非法操作依靠非法访问PAGE_NOACCESS属性的页面暴露问题
+5：由于每块内存都至少需要2个页面（1个页面分配，1个页面PAGE_NOACCESS），在内存消耗较大的环境下会占用极大的内存资源。
+6：把pageheap和crt的堆检查函数结合起来，能够更好的暴露堆相关bug
+
+ 
+
+ps.pageheap的作用是在注册表位置HKLM/SOFTWARE/Microsoft/Windows NT/CurrentVersion/Image File Execution Options下生成一个项
+--------------------- 
+作者：xiaohyy 
+来源：CSDN 
+原文：https://blog.csdn.net/xiaohyy/article/details/4174493 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+
+ 
+
+ 
+
+Windbg的gflags.exe调试堆栈溢出，访问越界等问题。
+gflags.exe是Windbg下的一个小工具，非常好用，对于调试程序隐藏的bug很有帮助。
+
+　　如：我在vs2015中遇到访问越界的问题，但程序不会在越界的地方发生崩溃中断，而是在一个不可能存在访问错误的地方发生了错误，以至于无法定位问题的位置。 
+　 
+　　所以在网上看到了Windbg的方法，一开始对Windbg不是很了解，熟悉之后发现Windbg很强大，虽然只用到了其中的一个小工具gflags.exe。
+
+举个栗子：
+
+    int main()   
+    {    
+        char *p = new char[10];  
+        for(int i = 0; i != 11; ++i)     
+            p[i] = i;    
+        return 0;    
+    }
+
+　　这是一个非常简单的越界程序，当i = 10时，访问越界了。但是如果不采用测试工具，这里是不会发生崩溃的。一般情况下，程序获取的空间是16字节对齐的，所以p[10]访问到的是对齐之后增加的空间，不会导致越界崩溃。但这是隐患，为了使隐患尽早被发现，使用工具是很好的选择。 
+　　gflags用来跟踪这个程序的执行，可以设置每一次new分配的堆空间都单独的占有一块空间，并且这个空间相邻的位置被设置为不可访问的，一旦访问越界立即触发访问无效错误，尽早的触发崩溃。
+
+gflags.exe的作用：跟踪被调试的程序
+
+方法： 
+1、下载Debugging Tools for Windows，使用其中的gflags.exe。 
+2、双击打开gflags.exe，选择Image File标签。前两个标签是对所有程序进行跟踪。 
+3、在Image栏里输入你希望调试的程序名。比如，mytest.exe。（按Tab刷新）。 
+4、勾选Debugger并输入vsjitdebugger.exe。 
+5、点击OK或者Apply。
+
+注：用vc编译出release版本的可执行文件：mytest.exe。（注意：不是debug版本），gflags.exe工具跟踪被监控的程序一定要是release版本的，debug版本的跟踪的不会那么的准确。
+
+这个时候，已经把要监控的test.exe注册上了。程序会中断到发生错误的地方，有源代码更好查看，本人就是在源代码下进行调试。
+
+最后、问题解决了记得关闭gflags，因为开启gflags，调试运行就慢了，最后会影响到程序的性能，亲测性能下降非常严重。 
+关闭方法；
+
+HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/WindowsNT/CurrentVersion/Image File Execution Options/mytest.exe
+
+网上看到是取消Debugger的勾选，但是无效，最后清除注册表后程序恢复原有速度。
