@@ -1,51 +1,53 @@
-### 一. 个人信息
-###### 姓名    ： 李小培
-###### 位置    ： 大连
-###### 毕业学校： 东北大学
-###### 专业    ： 计算机科学与技术(软件工程)
-###### 学历学位： 研究生(工学硕士)
-###### 邮箱    ： xiaopei.li.soar@gmail.com
+### 1. Basic
+| Item | Content |
+| -------- | -------- |
+| Name | Xiaopei.li |
+| Location | Dalian China |
+| University | Northeastern University |
+| Major | Computer Science and Technology |
+| Degree | Master |
+| Email | xiaopei.li.soar@gmail.com |
 
 
-### 二. 自我评价
-###### 1.技术全面，精通C++程序开发，熟练iOS上应用和游戏开发，了解Spring等网站开发技术
-###### 2.架构能力强，有从零构建大型项目的能力和经验
-###### 3.系统了解透彻，有网络和数据系统架构调整和性能优化经验
-###### 4.熟悉开发过程中日程制定，进度追踪等流程。同时有客户现场部署和调试经验
+### 2. Summary
+| NO | Content |
+| -------- | -------- |
+| 1 | Regarding C++, I have more than 10 years' experience. |
+| 2 | As a manager, I am capable of leading a team to accomplish projects and reach certain objectives that come from company strategies. |
+| 3 | As a certified architect, I have successfully finished several business software architectures. |
+| 4 | Also, I use Rust, Golang and Java to program and I am familiar with MySQL  and PostgreSQL. |
 
-### 三. 个人资历
-###### 1.系统架构师-软考高级认证
-###### 2.PMP-项目管理专家认证
-###### 3.UML-OCPU中级认证
-###### 4.英语六级-听说
-###### 5.日语二级
-###### 6.证券从业资格
+### 3. Certificates
+| NO | Content |
+| -------- | -------- |
+| 1 | System architect certificate |
+| 2 | 2010 PMI-PMP Certificate  |
+| 3 | OCUP intermediate certificate by OMG-UML |
 
-### 四. 个人荣誉
-###### 1.[2019年大连市创业孵化平台优秀创业人才](https://wenku.baidu.com/view/3ad77209a800b52acfc789eb172ded630b1c98b6.html)<br>
-![image](https://user-images.githubusercontent.com/5185995/131624520-e25a8f9a-e1fe-4433-a22c-362ba02533ff.png)
-###### 2.[2019联邦快递中小企业大赛全国十强](https://www.sohu.com/a/317046248_564549)<br>
-![image](https://user-images.githubusercontent.com/5185995/131624570-ac6fbe25-02ad-40dd-a4dc-9156905b1467.png)
-
-### 五. 工作经历
-
-| 年限 | 公司 | 角色 |
+### 4. honor
+| NO | Content | ... |
 | -------- | -------- | -------- |
-| 2022/03-至今 | 奔图电子(大连)有限公司 | 软件开发科主管 |
-| 2020/07-2022/03 | 思佰益必智信息技术(大连)有限公司 | SE |
-| 2017/08-2020/07 | 大连华易飞派科技有限公司 | CTO |
-| 2016/08-2017/07 | 大连红豆互娱技术开发有限公司 | SE |
-| 2011/04-2016/07 | 大连慧搜网络技术有限公司 | SE |
-| 2008/04-2011/03 | 日冲信息(大连)有限公司 | PG |
+| 1 | [Excellent entrepreneurial talents By Dalian Government in 2019](https://wenku.baidu.com/view/3ad77209a800b52acfc789eb172ded630b1c98b6.html) | ![image](https://user-images.githubusercontent.com/5185995/131624520-e25a8f9a-e1fe-4433-a22c-362ba02533ff.png) |
+| 2 | [Top ten of FedEx Small Business Grant Contest](https://www.sohu.com/a/317046248_564549) | ![image](https://user-images.githubusercontent.com/5185995/131624570-ac6fbe25-02ad-40dd-a4dc-9156905b1467.png) |
 
-### 六. 项目经验
+### 5. Employment
 
-| NO | 项目 | 内容 |
+| Duration | Company | Position |
 | -------- | -------- | -------- |
-| 1| Windows上打印驱动创建 | 从零开始，基于Windows的Unidrv架构，开发Windows上打印平台架构和自主A3机器的驱动落地。主持软件开发科日常工作。   |
-| 2| 期权,期货交易系统开发| 微服务，Rust语言，分布式部署，系统性能优化   |
-| 3| 基于文件过滤的影子主机系统研发| 操作系统迁移，数据CDP机制，双机备份影子系统构建， 业务系统持续监控，C++， 文件过滤驱动， 技术负责人   |
-| 4| 基于iOS的App,游戏开发| Comico， Lovelive，Puyopuyo, 母子手账等  |
-| 5| 扫描仪驱动和上层解决方案开发|  C++, MFP， 网络发现，程序发布等  |
-| 6| 四季旅行网开发| 签证，WIFI盒子，门票预订等, Spring |
+| 2022/03 to date | Pantum DaLian | Team Leader |
+| 2020/07-2022/03 | SBI Bits DaLian | SE |
+| 2017/08-2020/07 | Hiephipi DaLian | CTO |
+| 2016/08-2017/07 | Red Bean Entertainment | SE |
+| 2011/04-2016/07 | NHN ST | SE |
+| 2008/04-2011/03 | OKI Data DaLian | PG |
+
+### 6. Projects
+
+| NO | Project | Detail |
+| -------- | -------- | -------- |
+| 1| Univeral Driver For Windows | A. Use Unidrv/Pscript technologies of Windows to complete a new architecture for both PCL/PS and GDI printer drivers. B. Manage software development team   |
+| 2| The trading system of futures and options (Linux, Rust)| A. Create micro-service by Rust B. Handle tasks of improving performance of batch applications. |
+| 3| A shadow host system based on file filter technolog（Linux, Windows)|A. Clone a OS where a business system with big data is running to Cloud or other PC. B. Monitor and sync critical data between business OS and backup OS. C. CTO and main architect in the company |
+| 4| Applications and Games on iOS| Comico， Lovelive，Puyopuyo and so on  |
+| 5| Scanner Control Application (Windows, C++) |  C++, MFP， scan control and network discovery  |
 
